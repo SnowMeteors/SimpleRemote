@@ -53,12 +53,16 @@
 反弹nc，格式 `nc ip port`
 
  <img src="image\8.jpg">
+
 #### msf
 反弹msf，仅支持`windows/meterpreter/reverse_tcp`，格式 `msf ip port`
-<img src="image\9.jpg">
+
+ <img src="image\9.jpg">
+
 #### getsystem
 从管理员提权到system，格式 `getsystem`，如果提权成功会打开一个新窗口
-<img src="image\10.jpg">
+
+ <img src="image\10.jpg">
 
 ### 待完善
 1.反弹msf功能，因为在client.exe启动了一个msf的子线程，所以msf退出或者client.exe退出。都会导致对方程序崩溃，后续会考虑使用傀儡进程
