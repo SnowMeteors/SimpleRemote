@@ -19,7 +19,8 @@
 ### 支持功能
 #### help
 查看支持命令, 格式 `help`
-<img src="image\11.jpg">
+
+ <img src="image\11.jpg">
 
 #### upload
 上传本地文件到对方机器。格式  `upload filepath`。
@@ -36,18 +37,22 @@
 
 #### getpid
 获取当前进程pid，格式 `getpid`
-<img src="image\5.jpg">
+
+ <img src="image\5.jpg">
 
 #### drive
 列出盘符，格式 `drive`
-<img src="image\6.jpg">
+
+ <img src="image\6.jpg">
 
 #### screen
 屏幕截图，格式 `screen`
 <img src="image\7.jpg">
+
 #### nc
 反弹nc，格式 `nc ip port`
-<img src="image\8.jpg">
+
+ <img src="image\8.jpg">
 #### msf
 反弹msf，仅支持`windows/meterpreter/reverse_tcp`，格式 `msf ip port`
 <img src="image\9.jpg">
@@ -57,9 +62,16 @@
 
 ### 待完善
 1.反弹msf功能，因为在client.exe启动了一个msf的子线程，所以msf退出或者client.exe退出。都会导致对方程序崩溃，后续会考虑使用傀儡进程
+
 2.流量层进行加密
+
 3.添加bypassuac功能
+
 4.添加端口转发功能
+
 5.添加内网存活主机扫描功能
+
 6.先阶段只能连接一个客户端，后续考虑支持多个客户端 （最后考虑）
+
 7.支持交互式shell （最后考虑）
+
