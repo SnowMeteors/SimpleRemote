@@ -55,7 +55,7 @@
  <img src="image\8.jpg">
 
 #### msf
-反弹msf，仅支持`windows/meterpreter/reverse_tcp`，格式 `msf ip port`
+反弹msf，支持`windows/meterpreter/reverse_tcp`，`windows/x64/meterpreter/reverse_tcp`。如果使用x64需要将程序生成x64后方可使用，并且需要等待差不多一分钟才能反弹成功。格式 `msf ip port`
 
  <img src="image\9.jpg">
 
@@ -65,7 +65,7 @@
  <img src="image\10.jpg">
 
 ### 待完善
-1.反弹msf功能，因为在client.exe启动了一个msf的子线程，所以msf退出或者client.exe退出。都会导致对方程序崩溃，后续会考虑使用傀儡进程
+1.~~反弹msf功能，因为在client.exe启动了一个msf的子线程，所以msf退出或者client.exe退出。都会导致对方程序崩溃，后续会考虑使用傀儡进程~~（已完成）
 
 2.流量层进行加密
 

